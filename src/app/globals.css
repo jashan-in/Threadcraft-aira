@@ -1,0 +1,40 @@
+@import "tailwindcss";
+
+:root {
+  --background: #fffaf8;
+  --foreground: #272322;
+  --pink-soft: #f9e6e5;
+  --pink: #d98186;
+  --pink-dark: #bd656b;
+  --cream: #fff8f4;
+  --border-soft: #eedbd6;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  cursor: pointer;
+}
+
+.container-main {
+  width: min(1200px, 92%);
+  margin: 0 auto;
+}
