@@ -1,4 +1,7 @@
 import Header from "@/components/layout/Header";
+import HeroSection from "@/components/home/HeroSection";
+import CategorySection from "@/components/home/CategorySection";
+import ProductsSection from "@/components/home/ProductsSection";
 
 export default function Home() {
   return (
@@ -6,11 +9,9 @@ export default function Home() {
       <Header />
 
       <main>
-        <div className="container-main py-20">
-          <h1 className="text-4xl font-semibold">
-            Threadcraft Aira
-          </h1>
-        </div>
+        <HeroSection />
+        <CategorySection />
+        <ProductsSection />
       </main>
     </>
   );
