@@ -1,0 +1,154 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  DESIGN_REVIEW
+  APPROVED
+  IN_PRODUCTION
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+model User {
+  id        String  @id @default(cuid())
+  clerkId   String  @unique
+  email     String  @unique
+  firstName String?
+  lastName  String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  addresses Address[]
+  cart      Cart?
+  orders    Order[]
+}
+
+model Address {
+  id String @id @default(cuid())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  fullName     String
+  phone        String?
+  addressLine1 String
+  addressLine2 String?
+  city         String
+  state        String
+  postalCode   String
+  country      String
+
+  isDefault Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  orders Order[]
+}
+
+model Cart {
+  id String @id @default(cuid())
+
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  items CartItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model CartItem {
+  id String @id @default(cuid())
+
+  cartId String
+  cart   Cart   @relation(fields: [cartId], references: [id], onDelete: Cascade)
+
+  productId   Int
+  productName String
+  productSlug String
+  image       String
+
+  price    Int
+  quantity Int @default(1)
+
+  size               String?
+  colour             String?
+  embroideryLocation String?
+  customText         String?
+  notes              String?
+  uploadedDesignUrl  String?
+  uploadedFileName   String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Order {
+  id String @id @default(cuid())
+
+  orderNumber String @unique
+
+  checkoutKey     String  @unique
+  razorpayOrderId String? @unique
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  addressId String
+  address   Address @relation(fields: [addressId], references: [id], onDelete: Restrict)
+
+  status        OrderStatus   @default(PENDING)
+  paymentStatus PaymentStatus @default(PENDING)
+
+  subtotal Int
+  shipping Int @default(0)
+  total    Int
+
+  paymentId       String?
+  paymentProvider String?
+
+  items OrderItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model OrderItem {
+  id String @id @default(cuid())
+
+  orderId String
+  order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  productId   Int
+  productName String
+  productSlug String
+  image       String
+
+  price    Int
+  quantity Int
+
+  size               String?
+  colour             String?
+  embroideryLocation String?
+  customText         String?
+  notes              String?
+  uploadedDesignUrl  String?
+}

@@ -1,7 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import { useAuth } from "@clerk/nextjs";
 import { Heart, Minus, Plus, Upload } from "lucide-react";
+
+import LoginReminderModal from "@/components/cart/LoginReminderModal";
+import { useCart } from "@/components/cart/CartProvider";
 
 import type { Product } from "@/types/product";
 
@@ -41,7 +45,11 @@ const locations = [
 export default function ProductDetails({
   product,
 }: ProductDetailsProps) {
+  const { isSignedIn } = useAuth();
+  const { addToCart } = useCart();
+
   const [selectedSize, setSelectedSize] = useState("M");
+
   const [selectedColour, setSelectedColour] =
     useState("White");
 
@@ -56,6 +64,12 @@ export default function ProductDetails({
   const [uploadedFile, setUploadedFile] =
     useState<File | null>(null);
 
+  const [showLoginReminder, setShowLoginReminder] =
+    useState(false);
+
+  const [addedToCart, setAddedToCart] =
+    useState(false);
+
   const increaseQuantity = () => {
     setQuantity((current) => current + 1);
   };
@@ -67,6 +81,41 @@ export default function ProductDetails({
   };
 
   const totalPrice = product.price * quantity;
+
+  const handleAddToCart = () => {
+    addToCart({
+      productId: product.id,
+      name: product.name,
+      price: product.price,
+      image: product.image,
+      slug: product.slug,
+
+      quantity,
+
+      size: selectedSize,
+      colour: selectedColour,
+      embroideryLocation: selectedLocation,
+
+      customText:
+        customText.trim() || undefined,
+
+      notes:
+        notes.trim() || undefined,
+
+      uploadedFileName:
+        uploadedFile?.name,
+    });
+
+    setAddedToCart(true);
+
+    if (!isSignedIn) {
+      setShowLoginReminder(true);
+    }
+
+    window.setTimeout(() => {
+      setAddedToCart(false);
+    }, 2000);
+  };
 
   return (
     <div>
@@ -361,9 +410,12 @@ export default function ProductDetails({
       <div className="mt-8 flex gap-3">
         <button
           type="button"
+          onClick={handleAddToCart}
           className="flex-1 rounded-full bg-[#d98186] px-6 py-4 text-sm font-semibold text-white transition hover:bg-[#bd656b]"
         >
-          ADD TO BAG
+          {addedToCart
+            ? "ADDED TO BAG ✓"
+            : "ADD TO BAG"}
         </button>
 
         <button
@@ -381,6 +433,13 @@ export default function ProductDetails({
         <p>🪡 Custom embroidery available</p>
         <p>🚚 Delivery available</p>
       </div>
+
+      <LoginReminderModal
+        open={showLoginReminder}
+        onClose={() =>
+          setShowLoginReminder(false)
+        }
+      />
     </div>
   );
 }

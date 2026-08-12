@@ -11,8 +11,17 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 
+import {
+  Show,
+  UserButton,
+} from "@clerk/nextjs";
+
+import { useCart } from "@/components/cart/CartProvider";
+
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
+
+  const { cartCount } = useCart();
 
   return (
     <>
@@ -22,32 +31,53 @@ export default function Header() {
 
       <header className="sticky top-0 z-50 border-b border-[#f0e2de] bg-white/95 backdrop-blur">
         <div className="container-main flex h-20 items-center justify-between">
-          <Link href="/" className="font-serif text-2xl italic text-[#a96f6a]">
+          <Link
+            href="/"
+            className="font-serif text-2xl italic text-[#a96f6a]"
+          >
             Threadcraft Aira
           </Link>
 
           <nav className="hidden items-center gap-8 text-sm font-medium lg:flex">
-            <Link href="/shop" className="hover:text-[#d98186]">
+            <Link
+              href="/shop"
+              className="hover:text-[#d98186]"
+            >
               NEW
             </Link>
 
-            <Link href="/shop" className="hover:text-[#d98186]">
+            <Link
+              href="/shop"
+              className="hover:text-[#d98186]"
+            >
               SHOP
             </Link>
 
-            <Link href="/customize" className="hover:text-[#d98186]">
+            <Link
+              href="/customize"
+              className="hover:text-[#d98186]"
+            >
               CUSTOMIZE
             </Link>
 
-            <Link href="/gifts" className="hover:text-[#d98186]">
+            <Link
+              href="/gifts"
+              className="hover:text-[#d98186]"
+            >
               GIFTS
             </Link>
 
-            <Link href="/#our-work" className="hover:text-[#d98186]">
+            <Link
+              href="/#our-work"
+              className="hover:text-[#d98186]"
+            >
               OUR WORK
             </Link>
 
-            <Link href="/#about" className="hover:text-[#d98186]">
+            <Link
+              href="/#about"
+              className="hover:text-[#d98186]"
+            >
               ABOUT
             </Link>
           </nav>
@@ -61,13 +91,28 @@ export default function Header() {
               <Search size={19} />
             </button>
 
-            <Link
-              href="/account"
-              aria-label="Account"
-              className="hover:text-[#d98186]"
-            >
-              <User size={19} />
-            </Link>
+            <Show when="signed-out">
+              <Link
+                href="/sign-in"
+                aria-label="Sign in"
+                className="hover:text-[#d98186]"
+              >
+                <User size={19} />
+              </Link>
+            </Show>
+
+            <Show when="signed-in">
+              <UserButton
+                appearance={{
+                  variables: {
+                    colorPrimary: "#d98186",
+                  },
+                  elements: {
+                    avatarBox: "h-7 w-7",
+                  },
+                }}
+              />
+            </Show>
 
             <button
               type="button"
@@ -84,18 +129,26 @@ export default function Header() {
             >
               <ShoppingBag size={20} />
 
-              <span className="absolute -right-2 -top-2 flex h-4 w-4 items-center justify-center rounded-full bg-[#d98186] text-[10px] text-white">
-                0
-              </span>
+              {cartCount > 0 && (
+                <span className="absolute -right-2 -top-2 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#d98186] px-1 text-[10px] text-white">
+                  {cartCount}
+                </span>
+              )}
             </Link>
 
             <button
               type="button"
-              onClick={() => setMenuOpen(!menuOpen)}
+              onClick={() =>
+                setMenuOpen((current) => !current)
+              }
               className="lg:hidden"
               aria-label="Open menu"
             >
-              {menuOpen ? <X size={23} /> : <Menu size={23} />}
+              {menuOpen ? (
+                <X size={23} />
+              ) : (
+                <Menu size={23} />
+              )}
             </button>
           </div>
         </div>
@@ -146,10 +199,30 @@ export default function Header() {
               <Link
                 href="/#about"
                 onClick={() => setMenuOpen(false)}
-                className="py-3"
+                className="border-b border-[#f5ebe8] py-3"
               >
                 ABOUT
               </Link>
+
+              <Show when="signed-out">
+                <Link
+                  href="/sign-in"
+                  onClick={() => setMenuOpen(false)}
+                  className="py-3 text-[#d98186]"
+                >
+                  SIGN IN
+                </Link>
+              </Show>
+
+              <Show when="signed-in">
+                <Link
+                  href="/account"
+                  onClick={() => setMenuOpen(false)}
+                  className="py-3 text-[#d98186]"
+                >
+                  MY ACCOUNT
+                </Link>
+              </Show>
             </nav>
           </div>
         )}
